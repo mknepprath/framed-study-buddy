@@ -64,18 +64,25 @@ export default function Index() {
   }, [title]);
 
   return (
-    <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
+    <div
+      style={{
+        fontFamily: "system-ui, sans-serif",
+        lineHeight: "1.4",
+        textAlign: "center",
+      }}
+    >
       <h1>Framed Study Buddy</h1>
       {/* {images.map(({ id, src }: { id: string; src: string }) => (
         <img alt={`${title} #${id}`} id={id} key={id} src={src} />
       ))} */}
-      <div>
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
         <button
           onClick={() => {
             const item = localStorage.getItem("state");
             let state = item ? JSON.parse(item) : "";
             if (!state) state = [];
-            state.push(title);
+            if (!state.find((film: string) => film === title))
+              state.push(title);
             localStorage.setItem("state", JSON.stringify(state));
 
             location.reload();
@@ -92,30 +99,28 @@ export default function Index() {
         >
           Didn't Get it
         </button>
-        <button
-          onClick={() => {
-            localStorage.clear();
-            location.reload();
-          }}
-          style={{ marginBottom: 8, marginRight: 8 }}
-          type="button"
-        >
-          Start Over
-        </button>
       </div>
+      <p>
+        Frame {index + 1} of {images.length}
+      </p>
       <img
         alt={`${title} #${images[index].id}`}
         id={images[index].id}
         key={images[index].id}
         onClick={() => {
-          if (index < images.length) {
+          if (index < images.length - 1) {
             setIndex((i) => i + 1);
           } else {
             setIndex(0);
           }
         }}
         src={images[index].src}
-        style={{ cursor: "pointer", maxWidth: "100%", width: 500 }}
+        style={{
+          borderRadius: 8,
+          cursor: "pointer",
+          maxWidth: "100%",
+          width: 500,
+        }}
       />
       {/* <form method="post">
         <div>
@@ -133,10 +138,20 @@ export default function Index() {
       </form> */}
       {index >= 6 ? (
         <p>
-          <a href={href}>{title}</a> {gotIt ? "✅" : ""}
+          <a href={href}>{title}</a>
         </p>
       ) : null}
       <p>Total ✅: {gotItCount}</p>
+      <button
+        onClick={() => {
+          localStorage.clear();
+          location.reload();
+        }}
+        type="button"
+      >
+        Start Over
+      </button>
+      {gotIt ? <p>✅ You correctly guessed this one previously.</p> : ""}
     </div>
   );
 }
