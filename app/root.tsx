@@ -16,7 +16,7 @@ export const meta: MetaFunction = () => ({
 
 export default function App() {
   return (
-    <html lang="en">
+    <html lang="en" style={{ background: "#000000", color: "#ffffff" }}>
       <head>
         <Meta />
         <Links />

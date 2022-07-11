@@ -65,7 +65,7 @@ export default function Index() {
 
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
-      <h1>Framed Study Buddy ({gotItCount} ✅)</h1>
+      <h1>Framed Study Buddy</h1>
       {/* {images.map(({ id, src }: { id: string; src: string }) => (
         <img alt={`${title} #${id}`} id={id} key={id} src={src} />
       ))} */}
@@ -136,6 +136,7 @@ export default function Index() {
           <a href={href}>{title}</a> {gotIt ? "✅" : ""}
         </p>
       ) : null}
+      <p>Total ✅: {gotItCount}</p>
     </div>
   );
 }
