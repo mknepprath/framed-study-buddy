@@ -38,7 +38,13 @@ export const loader = async () => {
   const images: { src: string; id: string }[] = [];
   $(imgs).each(function (i, img) {
     const src = $(img).attr("src");
-    if (src) images.push({ src, id: String(i) });
+    if (
+      src?.includes(
+        "https://film-grab.com/wp-content/uploads/photo-gallery/"
+      ) &&
+      src?.includes("/thumb/")
+    )
+      images.push({ src, id: String(i) });
   });
 
   return json({
@@ -66,7 +72,7 @@ export default function Index() {
   return (
     <div
       style={{
-        fontFamily: "system-ui, sans-serif",
+        fontFamily: "Helvetica Neue, system-ui, sans-serif",
         lineHeight: "1.4",
         textAlign: "center",
       }}
@@ -75,7 +81,15 @@ export default function Index() {
       {/* {images.map(({ id, src }: { id: string; src: string }) => (
         <img alt={`${title} #${id}`} id={id} key={id} src={src} />
       ))} */}
-      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0 }}>
+      <div
+        style={{
+          position: "absolute",
+          bottom: 8,
+          left: 8,
+          right: 8,
+          display: "flex",
+        }}
+      >
         <button
           onClick={() => {
             const item = localStorage.getItem("state");
@@ -87,14 +101,34 @@ export default function Index() {
 
             location.reload();
           }}
-          style={{ marginBottom: 8, marginRight: 8 }}
+          style={{
+            width: "100%",
+            border: "none",
+            borderRadius: 4,
+            color: "white",
+            padding: 16,
+            background: "#38c07d",
+            margin: 8,
+            fontSize: "1em",
+            cursor: "pointer",
+          }}
           type="button"
         >
           Got It
         </button>
         <button
           onClick={() => location.reload()}
-          style={{ marginBottom: 8, marginRight: 8 }}
+          style={{
+            width: "100%",
+            border: "none",
+            borderRadius: 4,
+            color: "white",
+            padding: 16,
+            background: "#df5935",
+            margin: 8,
+            fontSize: "1em",
+            cursor: "pointer",
+          }}
           type="button"
         >
           Didn't Get it
@@ -122,6 +156,23 @@ export default function Index() {
           width: 500,
         }}
       />
+
+      {/* Preload next image */}
+      {index + 1 < images.length ? (
+        <img
+          alt={`${title} #${images[index + 1].id}`}
+          id={images[index + 1].id}
+          key={images[index + 1].id}
+          src={images[index + 1].src}
+          style={{
+            left: -1000,
+            position: "absolute",
+            top: -1000,
+            width: 1,
+          }}
+        />
+      ) : null}
+
       {/* <form method="post">
         <div>
           <label>
@@ -136,22 +187,37 @@ export default function Index() {
           </label>
         </div>
       </form> */}
-      {index >= 6 ? (
+
+      {/* Display title after 6 frames,
+          or on final frame if there are no 6 frames.
+       */}
+      {index >= 6 || index + 1 === images.length ? (
         <p>
           <a href={href}>{title}</a>
         </p>
       ) : null}
-      <p>Total ✅: {gotItCount}</p>
-      <button
-        onClick={() => {
-          localStorage.clear();
-          location.reload();
-        }}
-        type="button"
-      >
-        Start Over
-      </button>
       {gotIt ? <p>✅ You correctly guessed this one previously.</p> : ""}
+      <div style={{ justifyContent: "center", display: "flex", width: "100%" }}>
+        <p style={{ margin: "0.8em 0" }}>Total ✅: {gotItCount}</p>
+        <button
+          onClick={() => {
+            localStorage.clear();
+            location.reload();
+          }}
+          style={{
+            border: "none",
+            borderRadius: 4,
+            color: "white",
+            padding: "8px 16px",
+            background: "#3d405b",
+            margin: 8,
+            cursor: "pointer",
+          }}
+          type="button"
+        >
+          Reset
+        </button>
+      </div>
     </div>
   );
 }
