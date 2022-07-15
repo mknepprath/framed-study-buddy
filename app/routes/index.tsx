@@ -1,5 +1,6 @@
 import { load } from "cheerio";
 import React from "react";
+import Select from "react-select";
 
 import { json } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
@@ -32,7 +33,7 @@ function shuffle(array: unknown[]) {
   return array;
 }
 
-export const loader = async () => {
+export const loader = async ({ request }: { request: Request }) => {
   var film = films[Math.floor(Math.random() * films.length)];
 
   const response = await fetch(film.href, {
@@ -53,25 +54,37 @@ export const loader = async () => {
       images.push({ src, id: String(i) });
   });
 
+  const url = new URL(request.url);
+  const mode = url.searchParams.get("mode");
+
   return json({
-    // options: films.map((film) => film.title),
+    hardMode: mode === "hard",
     images: shuffle(images),
+    options: films.map((film) => ({ label: film.title, value: film.title })),
     ...film,
   });
 };
 
 export default function Index() {
-  const { images, title, href } = useLoaderData();
+  const { hardMode, href, images, title, options } = useLoaderData();
   const [index, setIndex] = React.useState(0);
-  const [gotIt, setGotIt] = React.useState(false);
-  const [gotItCount, setGotItCount] = React.useState(0);
+  const [tapCount, setTapCount] = React.useState(0);
+  const [message, setMessage] = React.useState("");
+  const [guessedCount, setGuessedCount] = React.useState(0);
+  const [selectedOption, setSelectedOption] = React.useState(null);
 
   React.useEffect(() => {
     const item = localStorage.getItem("films");
     let films: Film[] = item ? JSON.parse(item) : "";
     if (films) {
-      setGotIt(!!films.find((film) => film.t === title && !!film.g));
-      setGotItCount(films?.filter((film) => !!film.g).length || 0);
+      setGuessedCount(films?.filter((film) => !!film.g).length || 0);
+
+      const film = films.find((film) => film.t === title);
+      if (film) {
+        if (film?.g) setMessage("✅ You've correctly guessed this one.");
+        if (film?.r >= 13) setMessage("✨ You really know this movie!");
+        if (film?.r <= 7) setMessage("🤕 You're struggling with this one.");
+      }
     }
   }, [title]);
 
@@ -84,77 +97,124 @@ export default function Index() {
       }}
     >
       <h1>Framed Study Buddy</h1>
-      {/* {images.map(({ id, src }: { id: string; src: string }) => (
-        <img alt={`${title} #${id}`} id={id} key={id} src={src} />
-      ))} */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: 8,
-          left: 8,
-          right: 8,
-          display: "flex",
-        }}
-      >
-        <button
-          onClick={() => {
-            const item = localStorage.getItem("films");
-            let films = item ? JSON.parse(item) : [];
-            const film = films.find((film: Film) => film.t === title);
-            if (!film) {
-              films.push({ t: title, r: 11, g: 1 } as Film);
-            } else {
-              film.r += 1;
-              film.g = 1;
-            }
-            localStorage.setItem("films", JSON.stringify(films));
 
-            location.reload();
-          }}
-          style={{
-            width: "100%",
-            border: "none",
-            borderRadius: 4,
-            color: "white",
-            padding: 16,
-            background: "#38c07d",
-            margin: 8,
-            fontSize: "1em",
-            cursor: "pointer",
-          }}
-          type="button"
-        >
-          Got It
-        </button>
-        <button
-          onClick={() => {
-            const item = localStorage.getItem("films");
-            let films = item ? JSON.parse(item) : [];
-            const film = films.find((film: Film) => film.t === title);
-            if (!film) {
-              films.push({ t: title, r: 9 } as Film);
-            } else {
-              film.r -= 1;
-            }
-            localStorage.setItem("films", JSON.stringify(films));
+      <div style={{ position: "absolute", bottom: 8, left: 8, right: 8 }}>
+        {hardMode ? (
+          <div style={{ color: "#000", margin: 8, textAlign: "left" }}>
+            <Select
+              autoFocus
+              menuPlacement="auto"
+              onChange={(option: { title: string; value: string } | null) => {
+                setSelectedOption(option as null); // 😳
 
-            location.reload();
-          }}
+                const item = localStorage.getItem("films");
+                let films = item ? JSON.parse(item) : [];
+                const film = films.find((film: Film) => film.t === title);
+                if (
+                  (option as { title: string; value: string }).value === title
+                ) {
+                  setMessage("✨ Yep!");
+                  if (!film) {
+                    films.push({ t: title, r: 11, g: 1 } as Film);
+                  } else {
+                    film.r += 1;
+                    film.g = 1;
+                  }
+                } else {
+                  setMessage(`⛔ The film was ${title}.`);
+                  if (!film) {
+                    films.push({ t: title, r: 9 } as Film);
+                  } else {
+                    film.r -= 1;
+                  }
+                }
+                localStorage.setItem("films", JSON.stringify(films));
+
+                setTimeout(() => {
+                  location.reload();
+                }, 300);
+              }}
+              options={options}
+              value={selectedOption}
+              name="film"
+              placeholder="Choose a film"
+            />
+          </div>
+        ) : null}
+        <div
           style={{
-            width: "100%",
-            border: "none",
-            borderRadius: 4,
-            color: "white",
-            padding: 16,
-            background: "#df5935",
-            margin: 8,
-            fontSize: "1em",
-            cursor: "pointer",
+            display: "flex",
           }}
-          type="button"
         >
-          Didn't Get it
-        </button>
+          {!hardMode ? (
+            <button
+              onClick={() => {
+                const item = localStorage.getItem("films");
+                let films = item ? JSON.parse(item) : [];
+                const film = films.find((film: Film) => film.t === title);
+                if (!film) {
+                  films.push({ t: title, r: 11, g: 1 } as Film);
+                } else {
+                  film.r += 1;
+                  film.g = 1;
+                }
+                localStorage.setItem("films", JSON.stringify(films));
+
+                location.reload();
+              }}
+              style={{
+                width: "100%",
+                border: "none",
+                borderRadius: 4,
+                color: "white",
+                padding: 16,
+                background: "#38c07d",
+                margin: 8,
+                fontSize: "1em",
+                cursor: "pointer",
+              }}
+              type="button"
+            >
+              Got It
+            </button>
+          ) : null}
+          <button
+            onClick={() => {
+              if (hardMode) setMessage(`⛔ The film was ${title}.`);
+
+              const item = localStorage.getItem("films");
+              let films = item ? JSON.parse(item) : [];
+              const film = films.find((film: Film) => film.t === title);
+              if (!film) {
+                films.push({ t: title, r: 9 } as Film);
+              } else {
+                film.r -= 1;
+              }
+              localStorage.setItem("films", JSON.stringify(films));
+
+              setTimeout(
+                () => {
+                  location.reload();
+                },
+                hardMode ? 600 : 0
+              );
+            }}
+            style={{
+              width: "100%",
+              border: "none",
+              borderRadius: 4,
+              color: "white",
+              padding: 16,
+              background: "#df5935",
+              margin: 8,
+              fontSize: "1em",
+              cursor: "pointer",
+            }}
+            type="button"
+          >
+            Don't Know It
+          </button>
+        </div>
       </div>
       <p>
         Frame {index + 1} of {images.length}
@@ -169,6 +229,7 @@ export default function Index() {
           } else {
             setIndex(0);
           }
+          setTapCount((count) => count + 1);
         }}
         src={images[index].src}
         style={{
@@ -195,32 +256,19 @@ export default function Index() {
         />
       ) : null}
 
-      {/* <form method="post">
-        <div>
-          <label>
-            Guess:{" "}
-            <select name="film">
-              {options.map((option: string) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-      </form> */}
-
       {/* Display title after 6 frames,
           or on final frame if there are no 6 frames.
        */}
-      {index >= 6 || index + 1 === images.length ? (
+      {tapCount >= 6 && !hardMode ? (
         <p>
           <a href={href}>{title}</a>
         </p>
       ) : null}
-      {gotIt ? <p>✅ You correctly guessed this one previously.</p> : ""}
+
+      {message ? <p>{message}</p> : ""}
+
       <div style={{ justifyContent: "center", display: "flex", width: "100%" }}>
-        <p style={{ margin: "0.8em 0" }}>Total ✅: {gotItCount}</p>
+        <p style={{ margin: "0.8em 0" }}>Total ✅: {guessedCount}</p>
         <button
           onClick={() => {
             localStorage.clear();
