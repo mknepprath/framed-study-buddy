@@ -58,7 +58,7 @@ export const loader = async ({ request }: { request: Request }) => {
   const mode = url.searchParams.get("mode");
 
   return json({
-    hardMode: mode === "hard",
+    easyMode: mode === "easy",
     images: shuffle(images),
     options: films.map((film) => ({ label: film.title, value: film.title })),
     ...film,
@@ -66,7 +66,7 @@ export const loader = async ({ request }: { request: Request }) => {
 };
 
 export default function Index() {
-  const { hardMode, href, images, title, options } = useLoaderData();
+  const { easyMode, href, images, title, options } = useLoaderData();
   const [index, setIndex] = React.useState(0);
   const [tapCount, setTapCount] = React.useState(0);
   const [message, setMessage] = React.useState("");
@@ -99,7 +99,7 @@ export default function Index() {
       <h1>Framed Study Buddy</h1>
 
       <div style={{ position: "absolute", bottom: 8, left: 8, right: 8 }}>
-        {hardMode ? (
+        {!easyMode ? (
           <div style={{ color: "#000", margin: 8, textAlign: "left" }}>
             <Select
               autoFocus
@@ -146,7 +146,7 @@ export default function Index() {
             display: "flex",
           }}
         >
-          {!hardMode ? (
+          {easyMode ? (
             <button
               onClick={() => {
                 const item = localStorage.getItem("films");
@@ -180,7 +180,7 @@ export default function Index() {
           ) : null}
           <button
             onClick={() => {
-              if (hardMode) setMessage(`⛔ The film was ${title}.`);
+              if (!easyMode) setMessage(`⛔ The film was ${title}.`);
 
               const item = localStorage.getItem("films");
               let films = item ? JSON.parse(item) : [];
@@ -196,7 +196,7 @@ export default function Index() {
                 () => {
                   location.reload();
                 },
-                hardMode ? 600 : 0
+                easyMode ? 0 : 600
               );
             }}
             style={{
@@ -259,7 +259,7 @@ export default function Index() {
       {/* Display title after 6 frames,
           or on final frame if there are no 6 frames.
        */}
-      {tapCount >= 6 && !hardMode ? (
+      {tapCount >= 6 && easyMode ? (
         <p>
           <a href={href}>{title}</a>
         </p>
