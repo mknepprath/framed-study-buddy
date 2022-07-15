@@ -68,10 +68,10 @@ export default function Index() {
 
   React.useEffect(() => {
     const item = localStorage.getItem("films");
-    let films = item ? JSON.parse(item) : "";
+    let films: Film[] = item ? JSON.parse(item) : "";
     if (films) {
-      setGotIt(!!films.find((film: Film) => film.t === title && !!film.g));
-      setGotItCount(films?.length || 0);
+      setGotIt(!!films.find((film) => film.t === title && !!film.g));
+      setGotItCount(films?.filter((film) => !!film.g).length || 0);
     }
   }, [title]);
 
