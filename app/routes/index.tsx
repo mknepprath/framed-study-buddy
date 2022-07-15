@@ -6,6 +6,12 @@ import { useLoaderData } from "@remix-run/react";
 
 import films from "../../data/grab-film";
 
+export interface Film {
+  t: string; // title
+  r: number; // confidence rating
+  g: number; // guessed correctly
+}
+
 function shuffle(array: unknown[]) {
   let currentIndex = array.length,
     randomIndex;
@@ -61,11 +67,11 @@ export default function Index() {
   const [gotItCount, setGotItCount] = React.useState(0);
 
   React.useEffect(() => {
-    const item = localStorage.getItem("state");
-    let state = item ? JSON.parse(item) : "";
-    if (state) {
-      setGotIt(!!state.find((film: string) => film === title));
-      setGotItCount(state?.length || 0);
+    const item = localStorage.getItem("films");
+    let films = item ? JSON.parse(item) : "";
+    if (films) {
+      setGotIt(!!films.find((film: Film) => film.t === title && !!film.g));
+      setGotItCount(films?.length || 0);
     }
   }, [title]);
 
@@ -92,12 +98,16 @@ export default function Index() {
       >
         <button
           onClick={() => {
-            const item = localStorage.getItem("state");
-            let state = item ? JSON.parse(item) : "";
-            if (!state) state = [];
-            if (!state.find((film: string) => film === title))
-              state.push(title);
-            localStorage.setItem("state", JSON.stringify(state));
+            const item = localStorage.getItem("films");
+            let films = item ? JSON.parse(item) : [];
+            const film = films.find((film: Film) => film.t === title);
+            if (!film) {
+              films.push({ t: title, r: 11, g: 1 } as Film);
+            } else {
+              film.r += 1;
+              film.g = 1;
+            }
+            localStorage.setItem("films", JSON.stringify(films));
 
             location.reload();
           }}
@@ -117,7 +127,19 @@ export default function Index() {
           Got It
         </button>
         <button
-          onClick={() => location.reload()}
+          onClick={() => {
+            const item = localStorage.getItem("films");
+            let films = item ? JSON.parse(item) : [];
+            const film = films.find((film: Film) => film.t === title);
+            if (!film) {
+              films.push({ t: title, r: 9 } as Film);
+            } else {
+              film.r -= 1;
+            }
+            localStorage.setItem("films", JSON.stringify(films));
+
+            location.reload();
+          }}
           style={{
             width: "100%",
             border: "none",
