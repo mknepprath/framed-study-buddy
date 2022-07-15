@@ -4344,6 +4344,10 @@ const films = [
     "href": "https://film-grab.com/2014/09/19/il-bidone/"
   },
   {
+    "title": "Il Boom",
+    "href": "https://film-grab.com/2022/07/14/il-boom/"
+  },
+  {
     "title": "Images",
     "href": "https://film-grab.com/2015/03/17/images/"
   },
@@ -8124,6 +8128,10 @@ const films = [
     "href": "https://film-grab.com/2021/04/08/soylent-green/"
   },
   {
+    "title": "Space is the Place",
+    "href": "https://film-grab.com/2022/07/13/space-is-the-place/"
+  },
+  {
     "title": "Speed Racer",
     "href": "https://film-grab.com/2015/01/23/speed-racer/"
   },
@@ -8766,6 +8774,10 @@ const films = [
   {
     "title": "The Banishment",
     "href": "https://film-grab.com/2014/04/06/the-banishment/"
+  },
+  {
+    "title": "The Batman",
+    "href": "https://film-grab.com/2022/07/11/the-batman/"
   },
   {
     "title": "The Beach",
@@ -9956,6 +9968,10 @@ const films = [
     "href": "https://film-grab.com/2012/10/15/the-man-who-wasnt-there/"
   },
   {
+    "title": "The Man With the Golden Gun",
+    "href": "https://film-grab.com/2022/07/12/the-man-with-the-golden-gun/"
+  },
+  {
     "title": "The Manchurian Candidate (2004)",
     "href": "https://film-grab.com/2021/09/01/the-manchurian-candidate-2004/"
   },
@@ -10102,6 +10118,10 @@ const films = [
   {
     "title": "The Niklashausen Journey",
     "href": "https://film-grab.com/2014/04/11/the-niklashausen-journey/"
+  },
+  {
+    "title": "The Northman",
+    "href": "https://film-grab.com/2022/07/15/the-northman/"
   },
   {
     "title": "The Notorious Bettie Page",
