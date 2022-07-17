@@ -120,7 +120,7 @@ export default function Index() {
                     films.push({ t: title, r: 11, g: 1 } as Film);
                   } else {
                     film.r += 1;
-                    film.g = 1;
+                    if (film?.r > 5) film.g = 1;
                   }
                 } else {
                   setMessage(`⛔ The film was ${title}.`);
