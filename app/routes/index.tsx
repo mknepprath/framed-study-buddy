@@ -81,9 +81,11 @@ export default function Index() {
 
       const film = films.find((film) => film.t === title);
       if (film) {
+        setMessage("👀 You've seen this before.");
         if (film?.g) setMessage("✅ You've correctly guessed this one.");
         if (film?.r >= 13) setMessage("✨ You really know this movie!");
         if (film?.r <= 7) setMessage("🤕 You're struggling with this one.");
+        if (film?.r <= 5) setMessage(`🎥 ${film.t}. Review for next time.`);
       }
     }
   }, [title]);
